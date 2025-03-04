@@ -1,27 +1,29 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useMemo,
+} from "react";
+import { View, Text, TouchableOpacity, FlatList, Animated } from "react-native";
 import {
-  View,
-  Text,
-  TouchableOpacity,
-  Modal,
-  FlatList,
-  TouchableWithoutFeedback,
-  Dimensions,
-  Platform,
-  Animated,
-} from "react-native";
+  BottomSheetModal,
+  BottomSheetBackdrop,
+  BottomSheetView,
+  BottomSheetBackdropProps,
+} from "@gorhom/bottom-sheet";
 import Chevron from "../assets/Chevron";
 import { cn } from "../lib/utils/cn";
 
 interface SelectOption {
   label: string;
-  value: string | number;
+  value: string;
 }
 
 interface SelectProps {
   options: SelectOption[];
-  value?: string | number;
-  onChange: (value: string | number) => void;
+  value?: string;
+  onChange: (value: string) => void;
   placeholder?: string;
   label?: string;
   error?: string;
@@ -39,11 +41,15 @@ export function Select({
   disabled = false,
   title = "Select Option",
 }: SelectProps) {
-  const [isOpen, setIsOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState<
     SelectOption | undefined
   >(options.find((option) => option.value === value));
-  const { height: windowHeight } = Dimensions.get("window");
+
+  const [isBottomSheetActive, setIsBottomSheetActive] = useState(false);
+
+  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+
+  const snapPoints = useMemo(() => ["30%"], []);
 
   const placeholderPosition = useRef(
     new Animated.Value(selectedOption ? 1 : 0)
@@ -53,7 +59,6 @@ export function Select({
     const foundOption = options.find((option) => option.value === value);
     setSelectedOption(foundOption);
 
-    // Animate when selection changes
     Animated.timing(placeholderPosition, {
       toValue: foundOption ? 1 : 0,
       duration: 200,
@@ -61,19 +66,53 @@ export function Select({
     }).start();
   }, [value, options]);
 
-  const handleToggleDropdown = () => {
+  const handleToggleDropdown = useCallback(() => {
     if (!disabled) {
-      setIsOpen(!isOpen);
+      console.log("Opening bottom sheet modal");
+      setIsBottomSheetActive(true);
+      bottomSheetModalRef.current?.present();
     }
-  };
+  }, [disabled]);
 
-  const handleSelectOption = (option: SelectOption) => {
-    setSelectedOption(option);
-    onChange(option.value);
-    setIsOpen(false);
-  };
+  const handleCloseSheet = useCallback(() => {
+    setIsBottomSheetActive(false);
+    bottomSheetModalRef.current?.dismiss();
+  }, []);
 
-  // Animation interpolations
+  const handleSelectOption = useCallback(
+    (option: SelectOption) => {
+      setSelectedOption(option);
+      onChange(option.value);
+      setIsBottomSheetActive(false);
+      handleCloseSheet();
+    },
+    [onChange, handleCloseSheet]
+  );
+
+  const handleSheetChanges = useCallback((index: number) => {
+    if (index === -1) {
+      setIsBottomSheetActive(false);
+    }
+  }, []);
+
+  const handleDismiss = useCallback(() => {
+    setIsBottomSheetActive(false);
+  }, []);
+
+  const renderBackdrop = useCallback(
+    (props: BottomSheetBackdropProps) => (
+      <BottomSheetBackdrop
+        {...props}
+        disappearsOnIndex={-1}
+        appearsOnIndex={0}
+        onPress={() => {
+          setIsBottomSheetActive(false);
+        }}
+      />
+    ),
+    []
+  );
+
   const placeholderTop = placeholderPosition.interpolate({
     inputRange: [0, 1],
     outputRange: ["50%", "25%"],
@@ -94,78 +133,73 @@ export function Select({
     outputRange: ["50%", "60%"],
   });
 
-  const renderOptionItem = ({ item }: { item: SelectOption }) => {
-    const isSelected = selectedOption?.value === item.value;
+  const renderOptionItem = useCallback(
+    ({ item, index }: { item: SelectOption; index: number }) => {
+      const isSelected = selectedOption?.value === item.value;
+      const isLastItem = index === options.length - 1;
 
-    return (
-      <TouchableOpacity
-        className="py-5 border-b border-grayscale-op-16"
-        onPress={() => handleSelectOption(item)}
-        activeOpacity={0.7}
-      >
-        <Text className="text-base font-semibold text-primary">
-          {item.label}
-        </Text>
-      </TouchableOpacity>
-    );
-  };
+      return (
+        <TouchableOpacity
+          className={cn(
+            "py-5",
+            !isLastItem &&
+              "border-b border-components-default-light dark:border-components-default-dark"
+          )}
+          onPress={() => handleSelectOption(item)}
+          activeOpacity={0.7}
+        >
+          <Text className="text-base font-semibold text-content-primary-light dark:text-content-primary-dark">
+            {item.label}
+          </Text>
+        </TouchableOpacity>
+      );
+    },
+    [selectedOption, handleSelectOption, options.length]
+  );
 
   return (
     <View className="mb-4">
-      {label && (
-        <Text className="mb-1 text-sm font-medium text-grayscale-dark">
-          {label}
-        </Text>
-      )}
-
       <TouchableOpacity
         className={cn(
           "flex-row items-center justify-between rounded-2xl h-[50px] px-3 py-2.5 relative",
-          isOpen
-            ? "bg-layout-container border border-primary-base"
+          isBottomSheetActive
+            ? "bg-layout-container-light dark:bg-layout-container-dark border border-primary-base-light dark:border-primary-base-dark"
             : error
-            ? "bg-error-op-8"
-            : "bg-component-primary",
-          disabled && "bg-component-disabled"
+            ? "bg-error-op8-light dark:bg-error-op8-dark"
+            : "bg-components-default-light dark:bg-components-default-dark",
+          disabled &&
+            "bg-components-disabled-light dark:bg-components-disabled-dark"
         )}
         onPress={handleToggleDropdown}
         activeOpacity={disabled ? 1 : 0.7}
-        style={{
-          shadowColor: "rgba(5, 6, 15, 0.16)",
-          shadowOffset: { width: 0, height: 0 },
-          shadowOpacity: 1,
-          shadowRadius: 15,
-        }}
       >
-        {/* Animated placeholder */}
         <Animated.Text
           style={{
             position: "absolute",
-            left: 12,
+            left: 16,
             top: placeholderTop,
             fontSize: placeholderFontSize,
             transform: [{ translateY: -10 }],
-            color: selectedOption
-              ? "#6B7280"
-              : disabled
-              ? "#A1A1AA"
-              : "#9CA3AF",
+            color: "rgba(3, 7, 18, 0.5)",
           }}
         >
           {placeholder}
         </Animated.Text>
 
-        {/* Animated selected value */}
         <Animated.Text
           style={{
             position: "absolute",
-            left: 12,
+            left: 16,
             top: selectedValueTop,
             opacity: selectedValueOpacity,
             fontSize: 16,
             transform: [{ translateY: -10 }],
           }}
-          className={cn("text-primary mt-0.5", disabled && "text-disabled")}
+          className={cn(
+            "text-content-primary-light dark:text-content-primary-dark mt-0.5",
+            disabled &&
+              "text-content-disabled-light dark:text-content-disabled-dark"
+          )}
           numberOfLines={1}
         >
           {selectedOption?.label || ""}
@@ -177,48 +211,49 @@ export function Select({
         </View>
       </TouchableOpacity>
 
-      {error && <Text className="mt-1 text-xs text-error-base">{error}</Text>}
+      {error && (
+        <Text className="mt-1 text-xs text-error-dark-light dark:text-error-dark-dark">
+          {error}
+        </Text>
+      )}
 
-      <Modal
-        visible={isOpen}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setIsOpen(false)}
+      <BottomSheetModal
+        ref={bottomSheetModalRef}
+        index={0}
+        snapPoints={snapPoints}
+        backdropComponent={renderBackdrop}
+        onChange={handleSheetChanges}
+        onDismiss={handleDismiss}
+        enablePanDownToClose
+        enableDynamicSizing={false}
+        enableDismissOnClose
       >
-        <TouchableWithoutFeedback onPress={() => setIsOpen(false)}>
-          <View className="flex-1 bg-black-base-op-50">
-            <View
-              className={cn(
-                "absolute w-full bg-white-base rounded-t-2xl shadow-lg bottom-0 left-0 right-0",
-                Platform.OS === "ios" && "shadow-black"
-              )}
-              style={{ height: windowHeight * 0.3 }}
+        <BottomSheetView style={{ flex: 1 }}>
+          <View className="flex-row items-center justify-between px-[20px] pb-[20px] border-b border-components-default-light dark:border-components-default-dark">
+            <Text className="text-xl font-bold text-center text-content-primary-light dark:text-content-primary-dark">
+              {title}
+            </Text>
+            <TouchableOpacity
+              onPress={handleCloseSheet}
+              className="items-center justify-center"
+              activeOpacity={0.7}
             >
-              <View className="flex-row items-center justify-between p-[20px] border-b border-grayscale-op-16">
-                <Text className="text-xl font-bold text-center text-primary">
-                  {title}
+              <View className="w-[40px] h-[40px] bg-components-default-light dark:bg-components-default-dark rounded-full items-center justify-center">
+                <Text className="text-md font-normal text-content-primary-light dark:text-content-primary-dark ">
+                  ✕
                 </Text>
-                <TouchableOpacity
-                  onPress={() => setIsOpen(false)}
-                  className="items-center justify-center"
-                  activeOpacity={0.7}
-                >
-                  <View className="w-[40px] h-[40px] bg-component-primary rounded-full items-center justify-center">
-                    <Text className="text-primary text-md font-normal">✕</Text>
-                  </View>
-                </TouchableOpacity>
               </View>
-              <FlatList
-                data={options}
-                renderItem={renderOptionItem}
-                keyExtractor={(item) => item.value.toString()}
-                showsVerticalScrollIndicator={false}
-                className="px-[20px]"
-              />
-            </View>
+            </TouchableOpacity>
           </View>
-        </TouchableWithoutFeedback>
-      </Modal>
+          <FlatList
+            data={options}
+            renderItem={renderOptionItem}
+            keyExtractor={(item) => item.value.toString()}
+            showsVerticalScrollIndicator={false}
+            className="px-[20px]"
+          />
+        </BottomSheetView>
+      </BottomSheetModal>
     </View>
   );
 }

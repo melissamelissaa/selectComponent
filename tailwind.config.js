@@ -5,96 +5,282 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        text: {
-          primary: "#05060F",
-          secondary: "#05060F80",
-          placeholder: "#05060F52",
-          disabled: "#05060F3D",
+        // for texts and icons
+        content: {
+          primary: {
+            light: "rgba(3, 7, 18, 1)",
+            dark: "rgba(255, 255, 255, 1)",
+          },
+          secondary: {
+            light: "rgba(3, 7, 18, 0.5)",
+            dark: "rgba(255, 255, 255, 0.5)",
+          },
+          placeholder: {
+            light: "rgba(3, 7, 18, 0.32)",
+            dark: "rgba(255, 255, 255, 0.32)",
+          },
+          disabled: {
+            light: "rgba(3, 7, 18, 0.24)",
+            dark: "rgba(255, 255, 255, 0.24)",
+          },
         },
-
-        primary: "#05060F",
-        secondary: "#05060F80",
-        placeholder: "#05060F52",
-        disabled: "#05060F3D",
-
-        component: {
-          primary: "#05060F0D",
-          hover: "#05060F1A",
-          press: "#05060F26",
-          selected: "#05060F0D",
-          disabled: "#05060F0D",
+        components: {
+          default: {
+            light: "rgba(3, 7, 18, 0.05)",
+            dark: "rgba(255, 255, 255, 0.05)",
+          },
+          hover: {
+            light: "rgba(3, 7, 18, 0.1)",
+            dark: "rgba(255, 255, 255, 0.1)",
+          },
+          press: {
+            light: "rgba(3, 7, 18, 0.15)",
+            dark: "rgba(255, 255, 255, 0.15)",
+          },
+          selected: {
+            light: "rgba(3, 7, 18, 0.05)",
+            dark: "rgba(255, 255, 255, 0.05)",
+          },
+          disabled: {
+            light: "rgba(3, 7, 18, 0.05)",
+            dark: "rgba(255, 255, 255, 0.05)",
+          },
         },
 
         layout: {
-          canvas: "#F1F3F3",
-          container: "#FFFFFF",
-          pure: "#05060F0D",
-          "surface-1": "#FFFFFF",
-          "surface-2": "#FFFFFF",
-          focus: "#0F0F1080",
+          canvas: {
+            light: "rgba(242, 243, 243, 1)",
+            dark: "rgba(16, 16, 17, 1)",
+          },
+          container: {
+            light: "rgba(255, 255, 255, 1)",
+            dark: "rgba(26, 26, 27, 1)",
+          },
+          pure: {
+            light: "rgba(255, 255, 255, 1)",
+            dark: "rgba(16, 16, 17, 1)",
+          },
+          surface1: {
+            light: "rgba(255, 255, 255, 1)",
+            dark: "rgba(36, 36, 38, 1)",
+          },
+          surface2: {
+            light: "rgba(255, 255, 255, 1)",
+            dark: "rgba(57, 57, 59, 1)",
+          },
+          focus: {
+            light: "rgba(16, 16, 17, 0.5)",
+            dark: "rgba(3, 7, 18, 0.5)",
+          },
         },
 
-        "white-inverted": "#FFFFFF",
-        "black-inverted": "#151515",
-        "white-base": "#FFFFFF",
-        "white-base-op-50": "rgba(255, 255, 255, 0.5)",
-        "white-base-op-5": "rgba(255, 255, 255, 0.05)",
-        "black-base": "#151515",
-        "black-base-op-50": "rgba(21, 21, 21, 0.5)",
-        "black-base-op-5": "rgba(21, 21, 21, 0.05)",
+        additional: {
+          whiteInverted: {
+            light: "rgba(242, 243, 243, 1)",
+            dark: "rgba(16, 16, 17, 1)",
+          },
+          blackInverted: {
+            light: "rgba(3, 7, 18, 1)",
+            dark: "rgba(255, 255, 255, 1)",
+          },
+          "white-Base": "rgba(255, 255, 255, 1)",
+          "white-Base-Op-50": "rgba(255, 255, 255, 0.5)",
+          "white-Base-Op-5": "rgba(255, 255, 255, 0.5)",
+          "black-Base": "rgba(3, 7, 18, 1)",
+          "black-Base-Op-50": "rgba(3, 7, 18, 0.5)",
+        },
 
         primary: {
-          dark: "#003E2E",
-          base: "#007256",
-          light: "#5AB59B",
-          "op-24": "rgba(0, 114, 86, 0.24)",
-          "op-16": "rgba(0, 114, 86, 0.16)",
-          "op-8": "rgba(0, 114, 86, 0.08)",
+          dark: {
+            light: "rgba(6, 66, 53, 1)",
+            dark: "rgba(60, 167, 144, 1)",
+          },
+          base: {
+            light: "rgba(8, 95, 76, 1)",
+            dark: "rgba(38, 155, 130, 1)",
+          },
+          light: {
+            light: "rgba(20, 134, 109, 1)",
+            dark: "rgba(27, 132, 109, 1)",
+          },
+          op24: {
+            light: "rgba(8, 95, 76, 0.24)",
+            dark: "rgba(29, 139, 115, 0.24)",
+          },
+          op16: {
+            light: "rgba(8, 95, 76, 0.16)",
+            dark: "rgba(29, 139, 115, 0.16)",
+          },
+          op8: {
+            light: "rgba(8, 95, 76, 0.08)",
+            dark: "rgba(29, 139, 115, 0.08)",
+          },
         },
 
-        "secondary-dark": "#6B21A8",
-        "secondary-base": "#9333EA",
-        "secondary-light": "#C084FC",
-        "secondary-op-24": "rgba(147, 51, 234, 0.24)",
-        "secondary-op-16": "rgba(147, 51, 234, 0.16)",
-        "secondary-op-8": "rgba(147, 51, 234, 0.08)",
+        secondary: {
+          dark: {
+            light: "rgba(136, 58, 210, 1)",
+            dark: "rgba(198, 139, 255, 1)",
+          },
+          base: {
+            light: "rgba(168, 85, 247, 1)",
+            dark: "rgba(168, 85, 247, 1)",
+          },
+          light: {
+            light: "rgba(198, 139, 255, 1)",
+            dark: "rgba(136, 58, 210, 1)",
+          },
+          op24: {
+            light: "rgba(168, 85, 247, 0.24)",
+            dark: "rgba(168, 85, 247, 0.24)",
+          },
+          op16: {
+            light: "rgba(168, 85, 247, 0.16)",
+            dark: "rgba(168, 85, 247, 0.16)",
+          },
+          op8: {
+            light: "rgba(168, 85, 247, 0.08)",
+            dark: "rgba(168, 85, 247, 0.08)",
+          },
+        },
 
-        "success-dark": "#065F46",
-        "success-base": "#10B981",
-        "success-light": "#6EE7B7",
-        "success-op-24": "rgba(16, 185, 129, 0.24)",
-        "success-op-16": "rgba(16, 185, 129, 0.16)",
-        "success-op-8": "rgba(16, 185, 129, 0.08)",
+        success: {
+          dark: {
+            light: "rgba(33, 154, 77, 1)",
+            dark: "rgba(58, 217, 116, 1)",
+          },
+          base: {
+            light: "rgba(33, 190, 91, 1)",
+            dark: "rgba(33, 190, 91, 1)",
+          },
+          light: {
+            light: "rgba(58, 217, 116, 1)",
+            dark: "rgba(33, 154, 77, 1)",
+          },
+          op24: {
+            light: "rgba(33, 190, 91, 0.24)",
+            dark: "rgba(33, 190, 91, 0.24)",
+          },
+          op16: {
+            light: "rgba(33, 190, 91, 0.16)",
+            dark: "rgba(33, 190, 91, 0.16)",
+          },
+          op8: {
+            light: "rgba(33, 190, 91, 0.08)",
+            dark: "rgba(33, 190, 91, 0.08)",
+          },
+        },
 
-        "warning-dark": "#9A3412",
-        "warning-base": "#F97316",
-        "warning-light": "#FDBA74",
-        "warning-op-24": "rgba(249, 115, 22, 0.24)",
-        "warning-op-16": "rgba(249, 115, 22, 0.16)",
-        "warning-op-8": "rgba(249, 115, 22, 0.08)",
+        warning: {
+          dark: {
+            light: "rgba(195, 90, 18, 1)",
+            dark: "rgba(255, 152, 81, 1)",
+          },
+          base: {
+            light: "rgba(249, 115, 22, 1)",
+            dark: "rgba(249, 115, 22, 1)",
+          },
+          light: {
+            light: "rgba(255, 152, 81, 1)",
+            dark: "rgba(195, 90, 18, 1)",
+          },
+          op24: {
+            light: "rgba(249, 115, 22, 0.24)",
+            dark: "rgba(249, 115, 22, 0.24)",
+          },
+          op16: {
+            light: "rgba(249, 115, 22, 0.16)",
+            dark: "rgba(249, 115, 22, 0.16)",
+          },
+          op8: {
+            light: "rgba(249, 115, 22, 0.08)",
+            dark: "rgba(249, 115, 22, 0.08)",
+          },
+        },
 
-        "error-dark": "#BF2A2A",
-        "error-base": "#F51616",
-        "error-light": "#FA3939",
-        "error-op-24": "#F516163D",
-        "error-op-16": "#F5161629",
-        "error-op-8": "#F5161614",
+        error: {
+          dark: {
+            light: "rgba(197, 34, 42, 1)",
+            dark: "rgba(253, 80, 88, 1)",
+          },
+          base: {
+            light: "rgba(251, 44, 54, 1)",
+            dark: "rgba(251, 44, 54, 1)",
+          },
+          light: {
+            light: "rgba(253, 80, 88, 1)",
+            dark: "rgba(197, 34, 42, 1)",
+          },
+          op24: {
+            light: "rgba(251, 44, 54, 0.24)",
+            dark: "rgba(251, 44, 54, 0.24)",
+          },
+          op16: {
+            light: "rgba(251, 44, 54, 0.16)",
+            dark: "rgba(251, 44, 54, 0.16)",
+          },
+          op8: {
+            light: "rgba(251, 44, 54, 0.08)",
+            dark: "rgba(251, 44, 54, 0.08)",
+          },
+        },
 
-        "informative-dark": "#1E40AF",
-        "informative-base": "#3B82F6",
-        "informative-light": "#93C5FD",
-        "informative-op-24": "rgba(59, 130, 246, 0.24)",
-        "informative-op-16": "rgba(59, 130, 246, 0.16)",
-        "informative-op-8": "rgba(59, 130, 246, 0.08)",
+        informative: {
+          dark: {
+            light: "rgba(42, 99, 192, 1)",
+            dark: "rgba(101, 158, 250, 1)",
+          },
+          base: {
+            light: "rgba(59, 130, 246, 1)",
+            dark: "rgba(59, 130, 246, 1)",
+          },
+          light: {
+            light: "rgba(101, 158, 250, 1)",
+            dark: "rgba(42, 99, 192, 1)",
+          },
+          op24: {
+            light: "rgba(59, 130, 246, 0.24)",
+            dark: "rgba(59, 130, 246, 0.24)",
+          },
+          op16: {
+            light: "rgba(59, 130, 246, 0.16)",
+            dark: "rgba(59, 130, 246, 0.16)",
+          },
+          op8: {
+            light: "rgba(59, 130, 246, 0.08)",
+            dark: "rgba(59, 130, 246, 0.08)",
+          },
+        },
 
-        "grayscale-dark": "#374151",
-        "grayscale-base": "#6B7280",
-        "grayscale-light": "#9CA3AF",
-        "grayscale-op-24": "rgba(107, 114, 128, 0.24)",
-        "grayscale-op-16": "rgba(107, 114, 128, 0.16)",
-        "grayscale-op-8": "rgba(107, 114, 128, 0.08)",
+        grayscale: {
+          dark: {
+            light: "rgba(81, 87, 100, 1)",
+            dark: "rgba(154, 162, 178, 1)",
+          },
+          base: {
+            light: "rgba(107, 114, 128, 1)",
+            dark: "rgba(107, 114, 128, 1)",
+          },
+          light: {
+            light: "rgba(154, 162, 178, 1)",
+            dark: "rgba(81, 87, 100, 1)",
+          },
+          op24: {
+            light: "rgba(107, 114, 128, 0.24)",
+            dark: "rgba(107, 114, 128, 0.24)",
+          },
+          op16: {
+            light: "rgba(107, 114, 128, 0.16)",
+            dark: "rgba(107, 114, 128, 0.16)",
+          },
+          op8: {
+            light: "rgba(107, 114, 128, 0.08)",
+            dark: "rgba(107, 114, 128, 0.08)",
+          },
+        },
       },
     },
   },
+  darkMode: "class",
   plugins: [],
 };
