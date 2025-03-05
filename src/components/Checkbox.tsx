@@ -2,12 +2,12 @@ import React from "react";
 import { View, Text, Pressable } from "react-native";
 import CheckIcon from "../assets/Checked";
 
-export type CheckboxState = "unchecked" | "checked" | "indeterminate";
 export type CheckboxVariant = "default" | "error";
 
 export interface CheckboxProps {
   label: string;
-  state?: CheckboxState;
+  checked?: boolean;
+  indeterminate?: boolean;
   description?: string;
   disabled?: boolean;
   onChange?: (checked: boolean) => void;
@@ -16,25 +16,23 @@ export interface CheckboxProps {
 
 export function Checkbox({
   label,
-  state = "unchecked",
+  checked,
+  indeterminate,
   description,
   disabled = false,
   onChange,
   error,
 }: CheckboxProps) {
-  const isChecked = state === "checked";
-  const isIndeterminate = state === "indeterminate";
-
   const handlePress = () => {
     if (!disabled && onChange) {
-      onChange(!isChecked);
+      onChange(!checked);
     }
   };
 
   const boxClassName = `h-6 w-6 rounded-lg mr-3 border-2 justify-center items-center ${
     disabled
       ? "bg-components-disabled-light dark:bg-components-disabled-dark border-content-disabled-light dark:border-content-disabled-dark"
-      : isChecked || isIndeterminate
+      : checked || indeterminate
       ? "bg-primary-base-light dark:bg-primary-base-dark border-primary-base-light dark:border-primary-base-dark"
       : error
       ? "bg-error-op8-light dark:bg-error-op8-dark border-error-base-light dark:border-error-base-dark"
@@ -57,8 +55,8 @@ export function Checkbox({
       accessibilityRole="checkbox"
     >
       <View className={boxClassName}>
-        {isChecked && !isIndeterminate && <CheckIcon />}
-        {isIndeterminate && (
+        {checked && !indeterminate && <CheckIcon />}
+        {indeterminate && (
           <View className="h-0.5 w-3.5 bg-additional-white-Base" />
         )}
       </View>

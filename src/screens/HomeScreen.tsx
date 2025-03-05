@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useCallback } from "react";
 import {
   SafeAreaView,
   View,
@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { Select } from "../components/Select";
 import { Input } from "../components/Input";
-import { Checkbox, CheckboxState } from "../components/Checkbox";
+import { Checkbox } from "../components/Checkbox";
 
 const sexOptions = [
   { label: "Male", value: "male" },
@@ -50,47 +50,56 @@ export function HomeScreen() {
 
   const selectAll = useMemo(() => {
     const { terms, privacy, marketing } = checkboxes;
-    if (terms && privacy && marketing) return "checked";
-    if (terms || privacy || marketing) return "indeterminate";
-    return "unchecked";
+    if (terms && privacy && marketing) return { checked: true };
+    if (terms || privacy || marketing) return { indeterminate: true };
+    return { checked: false };
   }, [checkboxes.terms, checkboxes.privacy, checkboxes.marketing]);
 
-  const updateField = (field: keyof FormData, value: string): void => {
-    setFormData({ ...formData, [field]: value });
+  const updateField = useCallback(
+    (field: keyof FormData, value: string): void => {
+      setFormData((prev) => ({ ...prev, [field]: value }));
 
-    if (field === "sex" && errors.sex) {
-      setErrors({ ...errors, sex: "" });
-    }
-  };
+      if (field === "sex") {
+        setErrors((prev) => (prev.sex ? { ...prev, sex: "" } : prev));
+      }
+    },
+    []
+  );
 
-  const updateCheckbox = (
-    name: keyof CheckboxStates,
-    checked: boolean
-  ): void => {
-    const newCheckboxes = { ...checkboxes, [name]: checked };
-    setCheckboxes(newCheckboxes);
+  const updateCheckbox = useCallback(
+    (name: keyof CheckboxStates, checked: boolean): void => {
+      setCheckboxes((prev) => {
+        const newCheckboxes = { ...prev, [name]: checked };
 
-    if (
-      (name === "terms" || name === "privacy") &&
-      newCheckboxes.terms &&
-      newCheckboxes.privacy &&
-      errors.agreements
-    ) {
-      setErrors({ ...errors, agreements: "" });
-    }
-  };
+        if (
+          (name === "terms" || name === "privacy") &&
+          newCheckboxes.terms &&
+          newCheckboxes.privacy
+        ) {
+          setErrors((prev) =>
+            prev.agreements ? { ...prev, agreements: "" } : prev
+          );
+        }
 
-  const handleSelectAll = (checked: boolean): void => {
+        return newCheckboxes;
+      });
+    },
+    []
+  );
+
+  const handleSelectAll = useCallback((checked: boolean): void => {
     setCheckboxes({
       terms: checked,
       privacy: checked,
       marketing: checked,
     });
 
-    if (checked && errors.agreements) {
-      setErrors({ ...errors, agreements: "" });
+    if (checked) {
+      setErrors((prev) =>
+        prev.agreements ? { ...prev, agreements: "" } : prev
+      );
     }
-  };
+  }, []);
 
   const handleSubmit = (): void => {
     const newErrors: ErrorStates = {};
@@ -122,6 +131,9 @@ Agreed to Marketing: ${checkboxes.marketing ? "Yes" : "No"}`,
       [{ text: "OK" }]
     );
   };
+
+  const termsHasError = !checkboxes.terms && !!errors.agreements;
+  const privacyHasError = !checkboxes.privacy && !!errors.agreements;
 
   return (
     <SafeAreaView className="flex-1 bg-layout-container-light dark:bg-layout-container-dark">
@@ -155,30 +167,30 @@ Agreed to Marketing: ${checkboxes.marketing ? "Yes" : "No"}`,
             <Checkbox
               label="I agree to the terms and conditions"
               description="You must accept our terms to continue"
-              state={checkboxes.terms ? "checked" : "unchecked"}
+              checked={checkboxes.terms}
               onChange={(checked) => updateCheckbox("terms", checked)}
-              error={Boolean(!checkboxes.terms && errors.agreements)}
+              error={termsHasError}
             />
 
             <Checkbox
               label="I agree to the privacy policy"
               description="You must accept our privacy policy to continue"
-              state={checkboxes.privacy ? "checked" : "unchecked"}
+              checked={checkboxes.privacy}
               onChange={(checked) => updateCheckbox("privacy", checked)}
-              error={Boolean(!checkboxes.privacy && errors.agreements)}
+              error={privacyHasError}
             />
 
             <Checkbox
               label="I would like to receive marketing communications"
               description="This is optional, you can opt out anytime"
-              state={checkboxes.marketing ? "checked" : "unchecked"}
+              checked={checkboxes.marketing}
               onChange={(checked) => updateCheckbox("marketing", checked)}
             />
 
             <Checkbox
               label="Select All"
-              state={selectAll}
               onChange={handleSelectAll}
+              {...selectAll}
             />
 
             {errors.agreements && (
