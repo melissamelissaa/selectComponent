@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useMemo, useState } from "react";
 import {
   SafeAreaView,
   View,
@@ -9,67 +9,116 @@ import {
 } from "react-native";
 import { Select } from "../components/Select";
 import { Input } from "../components/Input";
-import { Checkbox } from "../components/Checkbox";
+import { Checkbox, CheckboxState } from "../components/Checkbox";
 
 const sexOptions = [
   { label: "Male", value: "male" },
   { label: "Female", value: "female" },
 ];
 
-const HomeScreen = () => {
-  const [name, setName] = useState("");
-  const [position, setPosition] = useState("");
-  const [sex, setSex] = useState("");
-  const [agreeToTerms, setAgreeToTerms] = useState(false);
-  const [agreeToMarketing, setAgreeToMarketing] = useState(false);
-  const [agreeToPrivacy, setAgreeToPrivacy] = useState(false);
-  const [selectAll, setSelectAll] = useState(false);
-  const [isIndeterminate, setIsIndeterminate] = useState(false);
-  const [validationError, setValidationError] = useState("");
-  const [termsError, setTermsError] = useState("");
+interface FormData {
+  name: string;
+  position: string;
+  sex: string;
+}
 
-  useEffect(() => {
-    const allChecked = agreeToTerms && agreeToMarketing && agreeToPrivacy;
-    const someChecked = agreeToTerms || agreeToMarketing || agreeToPrivacy;
+interface CheckboxStates {
+  terms: boolean;
+  privacy: boolean;
+  marketing: boolean;
+}
 
-    setSelectAll(allChecked);
-    setIsIndeterminate(someChecked && !allChecked);
-  }, [agreeToTerms, agreeToMarketing, agreeToPrivacy]);
+interface ErrorStates {
+  sex?: string;
+  agreements?: string;
+}
 
-  const handleSelectAll = (checked: boolean) => {
-    setSelectAll(checked);
-    setIsIndeterminate(false);
-    setAgreeToTerms(checked);
-    setAgreeToMarketing(checked);
-    setAgreeToPrivacy(checked);
+export function HomeScreen() {
+  const [formData, setFormData] = useState<FormData>({
+    name: "",
+    position: "",
+    sex: "",
+  });
+
+  const [checkboxes, setCheckboxes] = useState<CheckboxStates>({
+    terms: false,
+    privacy: false,
+    marketing: false,
+  });
+
+  const [errors, setErrors] = useState<ErrorStates>({});
+
+  const selectAll = useMemo(() => {
+    const { terms, privacy, marketing } = checkboxes;
+    if (terms && privacy && marketing) return "checked";
+    if (terms || privacy || marketing) return "indeterminate";
+    return "unchecked";
+  }, [checkboxes.terms, checkboxes.privacy, checkboxes.marketing]);
+
+  const updateField = (field: keyof FormData, value: string): void => {
+    setFormData({ ...formData, [field]: value });
+
+    if (field === "sex" && errors.sex) {
+      setErrors({ ...errors, sex: "" });
+    }
   };
 
-  const handleSubmit = () => {
-    let hasError = false;
+  const updateCheckbox = (
+    name: keyof CheckboxStates,
+    checked: boolean
+  ): void => {
+    const newCheckboxes = { ...checkboxes, [name]: checked };
+    setCheckboxes(newCheckboxes);
 
-    if (!sex) {
-      setValidationError("Please select your sex");
-      hasError = true;
-    } else {
-      setValidationError("");
+    if (
+      (name === "terms" || name === "privacy") &&
+      newCheckboxes.terms &&
+      newCheckboxes.privacy &&
+      errors.agreements
+    ) {
+      setErrors({ ...errors, agreements: "" });
+    }
+  };
+
+  const handleSelectAll = (checked: boolean): void => {
+    setCheckboxes({
+      terms: checked,
+      privacy: checked,
+      marketing: checked,
+    });
+
+    if (checked && errors.agreements) {
+      setErrors({ ...errors, agreements: "" });
+    }
+  };
+
+  const handleSubmit = (): void => {
+    const newErrors: ErrorStates = {};
+
+    if (!formData.sex) {
+      newErrors.sex = "Please select your sex";
     }
 
-    if (!agreeToTerms || !agreeToPrivacy) {
-      setTermsError("You must agree to the terms and privacy policy");
-      hasError = true;
-    } else {
-      setTermsError("");
+    if (!checkboxes.terms || !checkboxes.privacy) {
+      newErrors.agreements = "You must agree to the terms and privacy policy";
     }
 
-    if (hasError) return;
+    if (Object.keys(newErrors).length > 0) {
+      setErrors({ ...errors, ...newErrors });
+      return;
+    }
 
     Alert.alert(
       "Profile Updated",
-      `Name: ${name}\nPosition: ${position}\nSex: ${
-        sexOptions.find((option) => option.value === sex)?.label || "None"
-      }\nAgreed to Terms: Yes\nAgreed to Privacy: Yes\nAgreed to Marketing: ${
-        agreeToMarketing ? "Yes" : "No"
-      }`,
+      `Name: ${formData.name}
+Position: ${formData.position}
+Sex: ${
+        sexOptions.find((option) => option.value === formData.sex)?.label ||
+        "None"
+      }
+Agreed to Terms: Yes
+Agreed to Privacy: Yes
+Agreed to Marketing: ${checkboxes.marketing ? "Yes" : "No"}`,
       [{ text: "OK" }]
     );
   };
@@ -77,74 +126,79 @@ const HomeScreen = () => {
   return (
     <SafeAreaView className="flex-1 bg-layout-container-light dark:bg-layout-container-dark">
       <ScrollView className="flex-1 p-5">
-        <View className="mb-8">
-          <Text className="text-3xl font-bold text-content-primary-light dark:text-content-primary-dark mb-4">
-            Profile Info
-          </Text>
-        </View>
+        <Text className="text-3xl font-bold text-content-primary-light dark:text-content-primary-dark mb-8">
+          Profile Info
+        </Text>
+
         <View className="flex-1 gap-5">
-          <Input label="Full Name" value={name} onChangeText={setName} />
-          <Input label="Position" value={position} onChangeText={setPosition} />
+          <Input
+            label="Full Name"
+            value={formData.name}
+            onChangeText={(value) => updateField("name", value)}
+          />
+
+          <Input
+            label="Position"
+            value={formData.position}
+            onChangeText={(value) => updateField("position", value)}
+          />
 
           <Select
             options={sexOptions}
-            value={sex}
-            onChange={setSex}
+            value={formData.sex}
+            onChange={(value) => updateField("sex", value)}
             placeholder="Sex"
-            error={validationError}
+            error={errors.sex}
           />
+
           <View className="mt-4 space-y-1">
             <Checkbox
               label="I agree to the terms and conditions"
               description="You must accept our terms to continue"
-              checked={agreeToTerms}
-              onToggle={setAgreeToTerms}
-              variant={!agreeToTerms && termsError ? "error" : "default"}
+              state={checkboxes.terms ? "checked" : "unchecked"}
+              onChange={(checked) => updateCheckbox("terms", checked)}
+              error={Boolean(!checkboxes.terms && errors.agreements)}
             />
 
             <Checkbox
               label="I agree to the privacy policy"
               description="You must accept our privacy policy to continue"
-              checked={agreeToPrivacy}
-              onToggle={setAgreeToPrivacy}
-              variant={!agreeToPrivacy && termsError ? "error" : "default"}
+              state={checkboxes.privacy ? "checked" : "unchecked"}
+              onChange={(checked) => updateCheckbox("privacy", checked)}
+              error={Boolean(!checkboxes.privacy && errors.agreements)}
             />
 
             <Checkbox
               label="I would like to receive marketing communications"
               description="This is optional, you can opt out anytime"
-              checked={agreeToMarketing}
-              onToggle={setAgreeToMarketing}
+              state={checkboxes.marketing ? "checked" : "unchecked"}
+              onChange={(checked) => updateCheckbox("marketing", checked)}
             />
 
             <Checkbox
               label="Select All"
-              checked={selectAll}
-              indeterminate={isIndeterminate}
-              onToggle={handleSelectAll}
+              state={selectAll}
+              onChange={handleSelectAll}
             />
 
-            {termsError ? (
+            {errors.agreements && (
               <Text className="text-error-base-light dark:text-error-base-dark text-sm ml-9 mt-1">
-                {termsError}
+                {errors.agreements}
               </Text>
-            ) : null}
+            )}
           </View>
         </View>
-        <View className="mt-8">
-          <TouchableOpacity
-            className="bg-primary-base-light dark:bg-primary-base-dark py-5 rounded-2xl"
-            onPress={handleSubmit}
-            activeOpacity={0.8}
-          >
-            <Text className="text-additional-white-Base text-center font-medium">
-              Save
-            </Text>
-          </TouchableOpacity>
-        </View>
+
+        <TouchableOpacity
+          className="bg-primary-base-light dark:bg-primary-base-dark py-5 rounded-2xl mt-8"
+          onPress={handleSubmit}
+          activeOpacity={0.8}
+        >
+          <Text className="text-additional-white-Base text-center font-medium">
+            Save
+          </Text>
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
-};
-
-export default HomeScreen;
+}
