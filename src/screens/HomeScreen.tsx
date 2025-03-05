@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   SafeAreaView,
   View,
@@ -6,9 +6,10 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
-  TextInput,
 } from "react-native";
-import Select from "../components/Select";
+import { Select } from "../components/Select";
+import { Input } from "../components/Input";
+import { Checkbox } from "../components/Checkbox";
 
 const sexOptions = [
   { label: "Male", value: "male" },
@@ -16,22 +17,58 @@ const sexOptions = [
 ];
 
 const HomeScreen = () => {
-  const [name, setName] = useState("Charlie Saris");
-  const [position, setPosition] = useState("Product Designer");
+  const [name, setName] = useState("");
+  const [position, setPosition] = useState("");
   const [sex, setSex] = useState("");
+  const [agreeToTerms, setAgreeToTerms] = useState(false);
+  const [agreeToMarketing, setAgreeToMarketing] = useState(false);
+  const [agreeToPrivacy, setAgreeToPrivacy] = useState(false);
+  const [selectAll, setSelectAll] = useState(false);
+  const [isIndeterminate, setIsIndeterminate] = useState(false);
   const [validationError, setValidationError] = useState("");
+  const [termsError, setTermsError] = useState("");
+
+  useEffect(() => {
+    const allChecked = agreeToTerms && agreeToMarketing && agreeToPrivacy;
+    const someChecked = agreeToTerms || agreeToMarketing || agreeToPrivacy;
+
+    setSelectAll(allChecked);
+    setIsIndeterminate(someChecked && !allChecked);
+  }, [agreeToTerms, agreeToMarketing, agreeToPrivacy]);
+
+  const handleSelectAll = (checked: boolean) => {
+    setSelectAll(checked);
+    setIsIndeterminate(false);
+    setAgreeToTerms(checked);
+    setAgreeToMarketing(checked);
+    setAgreeToPrivacy(checked);
+  };
 
   const handleSubmit = () => {
+    let hasError = false;
+
     if (!sex) {
       setValidationError("Please select your sex");
-      return;
+      hasError = true;
+    } else {
+      setValidationError("");
     }
 
-    setValidationError("");
+    if (!agreeToTerms || !agreeToPrivacy) {
+      setTermsError("You must agree to the terms and privacy policy");
+      hasError = true;
+    } else {
+      setTermsError("");
+    }
+
+    if (hasError) return;
+
     Alert.alert(
       "Profile Updated",
-      `Sex: ${
+      `Name: ${name}\nPosition: ${position}\nSex: ${
         sexOptions.find((option) => option.value === sex)?.label || "None"
+      }\nAgreed to Terms: Yes\nAgreed to Privacy: Yes\nAgreed to Marketing: ${
+        agreeToMarketing ? "Yes" : "No"
       }`,
       [{ text: "OK" }]
     );
@@ -46,30 +83,8 @@ const HomeScreen = () => {
           </Text>
         </View>
         <View className="flex-1 gap-5">
-          <View className="bg-components-default-light dark:bg-components-default-dark px-5 py-2.5 rounded-2xl">
-            <View className="flex gap-1 flex-col">
-              <Text className="text-sm text-content-secondary-light dark:text-content-secondary-dark">
-                Full name
-              </Text>
-              <TextInput
-                className="text-content-primary-light dark:text-content-primary-dark text-base p-0 m-0 h-6 leading-none"
-                value={name}
-                onChangeText={setName}
-              />
-            </View>
-          </View>
-          <View className="bg-components-default-light dark:bg-components-default-dark px-5 py-2.5 rounded-2xl">
-            <View className="flex flex-col gap-1">
-              <Text className="text-sm text-content-secondary-light dark:text-content-secondary-dark">
-                Position
-              </Text>
-              <TextInput
-                className="text-content-primary-light dark:text-content-primary-dark text-base p-0 m-0 h-6 leading-none"
-                value={position}
-                onChangeText={setPosition}
-              />
-            </View>
-          </View>
+          <Input label="Full Name" value={name} onChangeText={setName} />
+          <Input label="Position" value={position} onChangeText={setPosition} />
 
           <Select
             options={sexOptions}
@@ -78,6 +93,43 @@ const HomeScreen = () => {
             placeholder="Sex"
             error={validationError}
           />
+          <View className="mt-4 space-y-1">
+            <Checkbox
+              label="I agree to the terms and conditions"
+              description="You must accept our terms to continue"
+              checked={agreeToTerms}
+              onToggle={setAgreeToTerms}
+              variant={!agreeToTerms && termsError ? "error" : "default"}
+            />
+
+            <Checkbox
+              label="I agree to the privacy policy"
+              description="You must accept our privacy policy to continue"
+              checked={agreeToPrivacy}
+              onToggle={setAgreeToPrivacy}
+              variant={!agreeToPrivacy && termsError ? "error" : "default"}
+            />
+
+            <Checkbox
+              label="I would like to receive marketing communications"
+              description="This is optional, you can opt out anytime"
+              checked={agreeToMarketing}
+              onToggle={setAgreeToMarketing}
+            />
+
+            <Checkbox
+              label="Select All"
+              checked={selectAll}
+              indeterminate={isIndeterminate}
+              onToggle={handleSelectAll}
+            />
+
+            {termsError ? (
+              <Text className="text-error-base-light dark:text-error-base-dark text-sm ml-9 mt-1">
+                {termsError}
+              </Text>
+            ) : null}
+          </View>
         </View>
         <View className="mt-8">
           <TouchableOpacity

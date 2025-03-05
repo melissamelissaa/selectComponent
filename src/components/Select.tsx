@@ -5,7 +5,14 @@ import React, {
   useCallback,
   useMemo,
 } from "react";
-import { View, Text, TouchableOpacity, FlatList, Animated } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  FlatList,
+  Animated,
+  Easing,
+} from "react-native";
 import {
   BottomSheetModal,
   BottomSheetBackdrop,
@@ -36,7 +43,6 @@ export function Select({
   value,
   onChange,
   placeholder = "Select an option",
-  label,
   error,
   disabled = false,
   title = "Select Option",
@@ -61,7 +67,8 @@ export function Select({
 
     Animated.timing(placeholderPosition, {
       toValue: foundOption ? 1 : 0,
-      duration: 200,
+      duration: 250,
+      easing: Easing.out(Easing.quad),
       useNativeDriver: false,
     }).start();
   }, [value, options]);
@@ -115,7 +122,7 @@ export function Select({
 
   const placeholderTop = placeholderPosition.interpolate({
     inputRange: [0, 1],
-    outputRange: ["50%", "25%"],
+    outputRange: ["50%", "20%"],
   });
 
   const placeholderFontSize = placeholderPosition.interpolate({
@@ -124,7 +131,7 @@ export function Select({
   });
 
   const selectedValueOpacity = placeholderPosition.interpolate({
-    inputRange: [0, 0.5, 1],
+    inputRange: [0, 0.3, 1],
     outputRange: [0, 0, 1],
   });
 
@@ -257,5 +264,3 @@ export function Select({
     </View>
   );
 }
-
-export default Select;
